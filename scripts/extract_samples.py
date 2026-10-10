@@ -11,6 +11,7 @@ pcaps/sample_*.pcap, which ARE committed.
     dns_tunnel_real.pcap    -> sample_dnstunnel_real.pcap    only the names ending in .t.example.com
     beacon_regular.pcap     -> sample_beacon_regular.pcap    already filtered to port 8080
     beacon_jittery.pcap     -> sample_beacon_jittery.pcap    already filtered to port 8080
+    scan_kali.pcap          -> sample_scan_kali.pcap         nmap SYN scan of a Kali VM, already filtered to that VM
 """
 from pathlib import Path
 
@@ -47,3 +48,4 @@ if __name__ == "__main__":
     cut("dns_tunnel_real.pcap", "sample_dnstunnel_real.pcap", is_tunnel_dns)
     cut("beacon_regular.pcap", "sample_beacon_regular.pcap", lambda pkt: True)
     cut("beacon_jittery.pcap", "sample_beacon_jittery.pcap", lambda pkt: True)
+    cut("scan_kali.pcap", "sample_scan_kali.pcap", lambda pkt: True)

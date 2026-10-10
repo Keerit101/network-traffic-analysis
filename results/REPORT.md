@@ -11,7 +11,7 @@ I wrote three small detectors in Python (Scapy) that read a packet capture (`.pc
 
 I tested them on two kinds of capture:
 - **Synthetic captures** that I built myself, so the contents are known exactly (`make_sample_pcaps.py`).
-- **Real captures** of traffic created on this computer: an nmap scan of localhost, DNS lookups with random names, and a program that really connects to a local server on a timer. I also captured 5 minutes of real normal traffic.
+- **Real captures** of traffic created on this computer: nmap scans of localhost and of a Kali Linux virtual machine (my own, on an isolated host-only network), DNS lookups with random names, and a program that really connects to a local server on a timer. I also captured 5 minutes of real normal traffic.
 
 All traffic was my own, on my own machine. Nothing was scanned or sent to anyone else. The only outside traffic was ordinary page fetches from public websites during the normal capture, and DNS lookups for names under `example.com` (a name reserved for testing).
 
@@ -25,6 +25,7 @@ All traffic was my own, on my own machine. Nothing was scanned or sent to anyone
 | `sample_beacon` (synthetic) | Normal plus a 30 s beacon | 0 | 0 | 1 | Yes |
 | `normal.pcap` (real, not committed) | 5 min of real traffic, 12,340 packets | 0 | 0 | 0 | Yes |
 | `sample_scan_localhost` (real) | nmap scan of ports 1-1000 on this PC | 1 | 0 | 0 | Yes |
+| `sample_scan_kali` (real) | nmap SYN scan of ports 1-1000 on a Kali VM, 1000 SYNs answered by 1000 resets | 1 | 0 | 0 | Yes |
 | `sample_dnstunnel_real` (real) | 60 lookups of 40-character random names | 0 | 1 | 0 | Yes |
 | `sample_beacon_regular` (real) | Connection every 5 s, +/-4% timing | 0 | 0 | 1 | Yes |
 | `sample_beacon_jittery` (real) | Connection every 5 s, +/-40% timing | 0 | 0 | 0 | **No, missed** |
@@ -55,7 +56,7 @@ Loosening the threshold far enough to catch the +/-40% beacon (0.3) also flags t
 - **Beaconing:** jitter defeats it, and perfectly regular legitimate software (updaters, monitoring agents) would be flagged. It only looks at TCP connection starts.
 - **Encrypted traffic:** all three rules use only metadata (addresses, ports, timing, name lengths), so they work on HTTPS. They cannot see what is inside.
 - **Small data:** one 5-minute real capture is not enough to estimate a false-positive rate. The zero here is a lower bound on how noisy these rules would be on a busy network.
-- **Scan target:** I scanned `localhost`, not a separate machine. I had planned to scan a Kali VM, but that VM sits on an isolated virtual network and the computer was short of free memory, so I used localhost instead. Scanning localhost uses full TCP connections (nmap `-sT`) rather than SYN-only probes; the detector counts the SYN of each connection attempt either way.
+- **Scan targets:** the localhost scan used full TCP connections (nmap `-sT`). The Kali VM scan was a true SYN scan (`-sS`), but a default Kali has no listening services, so all 1000 ports were closed and answered with resets. The detector only looks at the scanner's connection-opening packets, so it fires either way, but I have not tested a scan against a machine with many open ports. To make the VM reachable I temporarily moved its network adapter onto the host-only network, then restored its original settings.
 
 ## Reproduce
 ```

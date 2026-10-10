@@ -31,7 +31,7 @@ Most traffic today is encrypted, so you cannot read what is inside it. But you c
 
 ## Why two kinds of test captures
 - **Synthetic** (`make_sample_pcaps.py`): built by hand so I know the right answer. Good for checking the code is correct. Because I built them to be detectable, a perfect score here proves less.
-- **Real** (nmap against localhost, DNS lookups, a program beaconing to a local server, 5 minutes of normal traffic): messier and more convincing, and it found the miss.
+- **Real** (nmap against localhost and against a Kali VM, DNS lookups, a program beaconing to a local server, 5 minutes of normal traffic): messier and more convincing, and it found the miss.
 
 ## The files
 `stats.py` summarizes a capture. `capture.py` records traffic (Scapy sniffs and writes packets straight to disk). `run_detectors.py` runs everything and writes a table. `sensitivity.py` repeats the beacon rule at several thresholds. `extract_samples.py` cuts clean, shareable files out of raw captures, because raw ones can contain other programs' traffic. `tests/test_detectors.py` asserts the expected answer for each known capture, including two recorded weaknesses.
@@ -43,5 +43,5 @@ Most traffic today is encrypted, so you cannot read what is inside it. But you c
 4. **What did your detectors get wrong?** They missed the +/-40% jittery beacon. Raising the threshold to catch it flagged an ordinary mail poller, so I kept 0.1 and documented the miss.
 5. **Why the synthetic captures?** With real traffic you do not know the ground truth. Synthetic files let me test correctness; real ones test realism.
 6. **Is one normal capture enough to claim a low false-positive rate?** No. It is five minutes from one computer; zero alerts is a lower bound on how noisy these rules would be elsewhere.
-7. **Why scan localhost instead of another machine?** I planned to use a Kali VM, but it is on an isolated virtual network and the computer was short of memory. Localhost produced real scan traffic; the detector counts connection-opening packets either way.
-8. **Was this legal?** Yes. I only scanned my own computer, and sent DNS lookups for names under example.com, which is reserved for testing.
+7. **What did you scan?** My own machine (localhost, a connect scan) and my own Kali VM (a true SYN scan, after moving its adapter onto a host-only network and restoring it afterward). Kali had no open ports, so every probe got a reset; the detector counts the scanner's connection-opening packets, so it fires either way, but I did not test a target with many open ports.
+8. **Was this legal?** Yes. I only scanned my own computer and my own virtual machine, and sent DNS lookups for names under example.com, which is reserved for testing.

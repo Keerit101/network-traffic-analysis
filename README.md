@@ -4,7 +4,7 @@ Three small Python detectors that read a packet capture and flag a port scan, DN
 
 **Headline result:** all three detectors found their attack in both synthetic and real captures and stayed quiet on 5 minutes of real normal traffic, with one honest miss: a beacon with 40% timing jitter slipped past the timing rule, and loosening the rule enough to catch it also flags an ordinary mail-polling program. Details, margins and limitations are in [results/REPORT.md](results/REPORT.md).
 
-> Scope: everything was captured on my own computer. Nothing was scanned or sent to anyone else's systems.
+> Scope: everything was captured on my own computer or my own virtual machine. Nothing was scanned or sent to anyone else's systems.
 
 ## What's here
 
@@ -21,7 +21,7 @@ Three small Python detectors that read a packet capture and flag a port scan, DN
 | `scripts/beacon_sim.py`, `dns_tunnel_sim.py`, `generate_browsing.py` | Create the test traffic on purpose |
 | `scripts/extract_samples.py` | Cuts the committed `sample_*.pcap` files out of raw captures |
 | `pcaps/` | The committed samples. Raw captures stay out of git (they can contain other programs' traffic) |
-| `tests/` | 9 tests that check each detector against captures with known contents |
+| `tests/` | 10 tests that check each detector against captures with known contents |
 
 [EXPLAINED.md](EXPLAINED.md) explains each detector and the questions you may be asked.
 

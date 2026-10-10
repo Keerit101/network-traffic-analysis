@@ -25,6 +25,13 @@ class TestPortScan(unittest.TestCase):
         self.assertEqual([a["source"] for a in alerts], ["10.0.0.66"])
         self.assertEqual(alerts[0]["distinct_targets"], 1000)
 
+    def test_finds_the_real_scan_of_a_vm(self):
+        # A real nmap SYN scan (ports 1-1000) of a Kali VM, captured on the
+        # host-only network. The scanner is the host, 192.168.56.1.
+        alerts = find_port_scans(sample("scan_kali"))
+        self.assertEqual([a["source"] for a in alerts], ["192.168.56.1"])
+        self.assertEqual(alerts[0]["distinct_targets"], 1000)
+
     def test_quiet_on_other_captures(self):
         for name in ("normal", "dnstunnel", "beacon"):
             self.assertEqual(find_port_scans(sample(name)), [], name)
