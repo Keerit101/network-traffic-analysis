@@ -16,6 +16,7 @@ Three small Python detectors that read a packet capture and flag a port scan, DN
 | `scripts/beaconing.py` | Detector: very regular connection timing to one destination |
 | `scripts/run_detectors.py` | Runs all three on many captures, writes `results/detector_results.csv` |
 | `scripts/sensitivity.py` | Shows how the beacon threshold changes what is caught |
+| `scripts/margins.py` | Shows how close a capture came to each threshold (output for the real normal capture: `results/normal_margins.txt`) |
 | `scripts/capture.py` | Records traffic to a `.pcap` (works without administrator rights) |
 | `scripts/make_sample_pcaps.py` | Builds synthetic captures with known contents |
 | `scripts/beacon_sim.py`, `dns_tunnel_sim.py`, `generate_browsing.py` | Create the test traffic on purpose |

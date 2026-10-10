@@ -28,8 +28,12 @@ def is_syn_only(pkt):
     return (flags & 0x02) != 0 and (flags & 0x10) == 0
 
 
-def find_port_scans(path, window=WINDOW_SECONDS, threshold=PORT_THRESHOLD):
-    """Return one alert per suspicious source, using its busiest time window."""
+def busiest_windows(path, window=WINDOW_SECONDS):
+    """For every source, its busiest time window: (distinct targets, window start).
+
+    Reported whether or not it crosses the alert threshold, so we can see how
+    close ordinary traffic comes to it (see scripts/margins.py).
+    """
     # attempts[source] = list of (time, destination, port) for each SYN it sent
     attempts = defaultdict(list)
     with PcapReader(str(path)) as reader:
@@ -38,7 +42,7 @@ def find_port_scans(path, window=WINDOW_SECONDS, threshold=PORT_THRESHOLD):
                 attempts[pkt[IP].src].append(
                     (float(pkt.time), pkt[IP].dst, pkt[TCP].dport))
 
-    alerts = []
+    busiest = {}
     for source, events in attempts.items():
         events.sort()
         in_window = Counter()      # (destination, port) -> how many SYNs in the window
@@ -55,10 +59,15 @@ def find_port_scans(path, window=WINDOW_SECONDS, threshold=PORT_THRESHOLD):
                 left += 1
             if len(in_window) > best[0]:
                 best = (len(in_window), events[left][0])
-        if best[0] >= threshold:
-            alerts.append({"source": source, "distinct_targets": best[0],
-                           "window_start": best[1]})
-    return alerts
+        busiest[source] = best
+    return busiest
+
+
+def find_port_scans(path, window=WINDOW_SECONDS, threshold=PORT_THRESHOLD):
+    """Return one alert per source whose busiest window reaches the threshold."""
+    return [{"source": source, "distinct_targets": count, "window_start": start}
+            for source, (count, start) in busiest_windows(path, window).items()
+            if count >= threshold]
 
 
 if __name__ == "__main__":

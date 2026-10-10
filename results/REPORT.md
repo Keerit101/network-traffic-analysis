@@ -36,7 +36,9 @@ The synthetic captures were built to be detectable, so a perfect score on them o
 "Zero alerts" means little without the margin. In the 5-minute real normal capture:
 - **Beaconing:** only 1 flow had 8 or more connections, with variation 0.59, far above the 0.1 limit.
 - **DNS:** 102 queries; the longest first label was 16 characters, so none reached the 25-character rule. Entropy alone would have been borderline (the highest entropy among labels of 8+ characters was 3.50, against a threshold of 3.5), so the length rule is what keeps normal traffic quiet.
-- **Port scan:** the busiest source reached 31 different destination-and-port pairs across the whole 5 minutes, but never 20 within 10 seconds.
+- **Port scan:** the closest any source came was 10 different destination-and-port pairs within one 10-second window, against a limit of 20.
+
+These margins are produced by `python -m scripts.margins pcaps/normal.pcap`; its output for this capture is saved in `results/normal_margins.txt`. The capture itself is not committed because it can contain other programs' traffic.
 
 ## The threshold trade-off (beaconing)
 The number of beacon alerts at different variation thresholds (`results/beacon_sensitivity.csv`):

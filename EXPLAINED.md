@@ -38,7 +38,7 @@ Most traffic today is encrypted, so you cannot read what is inside it. But you c
 
 ## Questions you may be asked
 1. **If HTTPS is encrypted, what can you still see?** Addresses, ports, timing, packet sizes and DNS names.
-2. **How does your port scan detector work, and why 20 ports in 10 seconds?** Sliding window over SYN-only packets. The numbers are my choice: normal traffic in my capture never came close (the busiest source hit 31 pairs across five minutes but never 20 in 10 seconds). Slow scans evade it.
+2. **How does your port scan detector work, and why 20 ports in 10 seconds?** Sliding window over SYN-only packets. The numbers are my choice: normal traffic in my capture stayed well under it (the closest any source came was 10 distinct ports in one 10-second window; `scripts/margins.py` prints this). Slow scans evade it.
 3. **What is entropy and why use it?** Average unpredictability per character; random-looking strings score high. I also need the length rule, because entropy alone was borderline on real traffic.
 4. **What did your detectors get wrong?** They missed the +/-40% jittery beacon. Raising the threshold to catch it flagged an ordinary mail poller, so I kept 0.1 and documented the miss.
 5. **Why the synthetic captures?** With real traffic you do not know the ground truth. Synthetic files let me test correctness; real ones test realism.

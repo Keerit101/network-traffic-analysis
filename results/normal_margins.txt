@@ -1,0 +1,12 @@
+capture: 12340 packets over 300 s
+
+PORT SCAN   rule: 20+ distinct (destination, port) pairs from one source within 10 s
+            closest: 10 pairs in one 10 s window
+
+DNS         rule: first label 25+ chars AND entropy 3.5+ bits per char
+            102 DNS questions; longest first label 16 chars; 0 reach 25 chars
+            highest entropy among labels of 8+ chars: 3.50 (entropy alone would be over the threshold)
+
+BEACONING   rule: 8+ connections to one destination, average gap 1+ s, variation <= 0.1
+            31 distinct flows, 1 with enough connections to be evaluated
+            flow with 10 connections, average gap 29.3 s, variation 0.59
