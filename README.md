@@ -1,41 +1,39 @@
-# Project 2 — Network Traffic Analysis
+# Network Traffic Analysis
 
-## Goal
-Capture and analyze network traffic, understand normal vs. suspicious patterns, and write simple detectors for common attack/malware behaviors.
+Three small Python detectors that read a packet capture and flag a port scan, DNS tunneling, or a beacon, tested on captures where I know what is inside and on real traffic from my own computer.
 
-## Data sources
-- **My own captures:** Wireshark/tshark on my machine while browsing, plus a port scan of my **own** VM (VirtualBox) with nmap
-- **Public datasets** (pick 1–2):
-  - malware-traffic-analysis.net (exercise pcaps; password-protected zips, so handle them in an isolated VM)
-  - CIC-IDS2017 / CSE-CIC-IDS2018 (labeled intrusion traffic)
-  - Wireshark sample captures wiki
+**Headline result:** all three detectors found their attack in both synthetic and real captures and stayed quiet on 5 minutes of real normal traffic, with one honest miss: a beacon with 40% timing jitter slipped past the timing rule, and loosening the rule enough to catch it also flags an ordinary mail-polling program. Details, margins and limitations are in [results/REPORT.md](results/REPORT.md).
 
-## Tasks
-1. **Capture** (`pcaps/`): record 5–10 min of normal traffic and a separate capture during a self-scan
-2. **Explore** (`notebooks/`)
-   - Protocol hierarchy, top talkers, conversation stats (`tshark -z io,phs`, `-z conv,ip`)
-   - DNS queries, HTTP hosts, TLS SNI
-3. **Detect** (`scripts/`)
-   - `port_scan.py`: one source hitting many ports/hosts in a short window (SYN without completed handshake)
-   - `dns_anomaly.py`: long/high-entropy subdomains (possible DNS tunneling), NXDOMAIN bursts
-   - `beaconing.py`: regular-interval connections to the same host (possible C2)
-4. **Report** (`results/`): findings with screenshots, Wireshark filters used, IOCs, and false positive notes
+> Scope: everything was captured on my own computer. Nothing was scanned or sent to anyone else's systems.
 
-## Useful Wireshark filters
+## What's here
+
+| Path | What it does |
+| --- | --- |
+| `scripts/stats.py` | Packet counts, protocols, top talkers for a capture |
+| `scripts/port_scan.py` | Detector: 20+ different ports from one source within 10 s |
+| `scripts/dns_anomaly.py` | Detector: long, random-looking DNS names sent to one domain |
+| `scripts/beaconing.py` | Detector: very regular connection timing to one destination |
+| `scripts/run_detectors.py` | Runs all three on many captures, writes `results/detector_results.csv` |
+| `scripts/sensitivity.py` | Shows how the beacon threshold changes what is caught |
+| `scripts/capture.py` | Records traffic to a `.pcap` (works without administrator rights) |
+| `scripts/make_sample_pcaps.py` | Builds synthetic captures with known contents |
+| `scripts/beacon_sim.py`, `dns_tunnel_sim.py`, `generate_browsing.py` | Create the test traffic on purpose |
+| `scripts/extract_samples.py` | Cuts the committed `sample_*.pcap` files out of raw captures |
+| `pcaps/` | The committed samples. Raw captures stay out of git (they can contain other programs' traffic) |
+| `tests/` | 9 tests that check each detector against captures with known contents |
+
+[EXPLAINED.md](EXPLAINED.md) explains each detector and the questions you may be asked.
+
+## Run it
+
+Needs Python 3.12 and [Npcap](https://npcap.com) (installed with Wireshark) for capturing. The detectors only need Scapy.
+
 ```
-tcp.flags.syn==1 && tcp.flags.ack==0     # SYN-only (scan indicator)
-dns && frame.len > 150                   # unusually large DNS
-http.request                              # HTTP requests
-tls.handshake.extensions_server_name      # TLS SNI
+python -m venv .venv
+.venv\Scripts\pip install -r requirements.txt
+python scripts/make_sample_pcaps.py
+python scripts/port_scan.py pcaps/sample_portscan.pcap
+python -m scripts.run_detectors pcaps/sample_*.pcap
+python -m unittest discover tests
 ```
-
-## Deliverables
-- [ ] At least 2 captures + 1 public pcap analyzed
-- [ ] 3 detection scripts with sample output
-- [ ] `results/REPORT.md` with findings
-
-> Don't commit large or sensitive pcaps. `pcaps/` is gitignored except for small samples.
-
-## Schedule (week of Oct 12, 2026)
-
-- **Wed:** capture own traffic + public pcaps, protocol breakdown, write 3 detectors, write `results/REPORT.md`

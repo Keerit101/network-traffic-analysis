@@ -1,5 +1,1 @@
 scapy
-pyshark
-pandas
-matplotlib
-jupyter
