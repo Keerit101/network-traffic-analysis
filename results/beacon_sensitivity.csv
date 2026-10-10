@@ -1,0 +1,6 @@
+capture,what it contains,<= 0.05,<= 0.1,<= 0.2,<= 0.3,<= 0.5
+normal.pcap,real normal traffic (no beacon),0,0,0,0,0
+sample_normal.pcap,"synthetic normal, includes a mail poller with +/-30% jitter",0,0,1,1,1
+sample_beacon_regular.pcap,"real beacon, +/-4% timing",1,1,1,1,1
+sample_beacon_jittery.pcap,"real beacon, +/-40% timing",0,0,0,1,1
+sample_beacon.pcap,"synthetic beacon, +/-0.5 s on 30 s",1,1,2,2,2

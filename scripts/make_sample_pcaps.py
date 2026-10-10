@@ -60,16 +60,18 @@ def tcp_connection(src, dst, dport, t, sport):
     ]
 
 
-def normal_traffic(rng, duration=300):
+def normal_traffic(rng, duration=900):
     """DNS lookup then a connection, at random times, for several sites.
 
     Includes one mail-client-style poller that connects about every 60 seconds
-    but with jitter, because real software is never perfectly regular. It is
-    there to check the beacon detector does not flag ordinary polling.
+    but with jitter, because real software is never perfectly regular. Over 15
+    minutes it connects about 15 times, enough for the beacon detector to
+    actually evaluate it (the detector ignores flows with fewer than 8
+    connections). It is there to test the detector against ordinary polling.
     """
     packets = []
     port = 40000
-    for _ in range(60):
+    for _ in range(180):
         t = START + rng.uniform(0, duration)
         name = rng.choice(NORMAL_NAMES)
         server = rng.choice(SERVERS)

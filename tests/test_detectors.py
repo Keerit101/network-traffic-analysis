@@ -59,10 +59,20 @@ class TestBeaconing(unittest.TestCase):
         self.assertEqual(alerts[0]["port"], 8443)
 
     def test_quiet_on_other_captures(self):
-        # sample_normal contains a mail poller with +/- 30% jitter. It must NOT
-        # be flagged, which shows why the threshold is 0.1 and not higher.
+        # sample_normal contains a mail poller (about 15 connections, +/- 30%
+        # jitter). The detector does evaluate it; at the 0.1 threshold it is
+        # not flagged. At 0.2 it would be (see scripts/sensitivity.py).
         for name in ("normal", "portscan", "dnstunnel"):
             self.assertEqual(find_beacons(sample(name)), [], name)
+
+    def test_threshold_cannot_separate_sloppy_beacon_from_poller(self):
+        # The trade-off, recorded as a test. Loosening the threshold to 0.2
+        # flags the ordinary mail poller (a false positive) while the real
+        # jittery beacon (variation about 0.21) is still not caught.
+        self.assertEqual(len(find_beacons(sample("normal"), max_variation=0.2)), 1)
+        self.assertEqual(find_beacons(sample("beacon_jittery"), max_variation=0.2), [])
+        # It takes 0.3 to catch the jittery beacon, and the poller stays flagged.
+        self.assertEqual(len(find_beacons(sample("beacon_jittery"), max_variation=0.3)), 1)
 
 
 if __name__ == "__main__":

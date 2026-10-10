@@ -29,7 +29,7 @@ MAX_VARIATION = 0.1          # coefficient of variation
 MIN_AVERAGE_GAP = 1.0        # seconds
 
 
-def find_beacons(path):
+def find_beacons(path, max_variation=MAX_VARIATION):
     # starts[(source, destination, port)] = times at which a connection was opened
     starts = defaultdict(list)
     with PcapReader(str(path)) as reader:
@@ -48,7 +48,7 @@ def find_beacons(path):
         gaps = [b - a for a, b in zip(times, times[1:])]
         average = statistics.mean(gaps)
         variation = statistics.pstdev(gaps) / average
-        if average >= MIN_AVERAGE_GAP and variation <= MAX_VARIATION:
+        if average >= MIN_AVERAGE_GAP and variation <= max_variation:
             alerts.append({"source": source, "destination": destination, "port": port,
                            "connections": len(times), "average_gap": average,
                            "variation": variation})
