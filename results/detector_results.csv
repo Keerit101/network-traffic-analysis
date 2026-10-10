@@ -1,0 +1,5 @@
+capture,port_scans,dns_anomalies,beacons
+sample_normal.pcap,0,0,0
+sample_portscan.pcap,1,0,0
+sample_dnstunnel.pcap,0,1,0
+sample_beacon.pcap,0,0,1
