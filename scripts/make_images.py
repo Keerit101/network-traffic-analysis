@@ -1,4 +1,4 @@
-"""Generate the evidence images in docs/images/ from the real data.
+"""Generate the evidence images in evidence/images/ from the real data.
 
     python -m scripts.make_images
 
@@ -34,7 +34,7 @@ from scripts.port_scan import PORT_THRESHOLD, busiest_windows, find_port_scans
 
 REPO = Path(__file__).resolve().parent.parent
 PCAPS = REPO / "pcaps"
-OUT = REPO / "docs" / "images"
+OUT = REPO / "evidence" / "images"
 TSHARK = shutil.which("tshark") or r"C:\Program Files\Wireshark\tshark.exe"
 CONSOLAS = r"C:\Windows\Fonts\consola.ttf"
 
